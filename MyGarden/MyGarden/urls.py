@@ -17,6 +17,7 @@ from django.conf.urls import include, url
 from django.contrib import admin
 
 urlpatterns = [
+    url(r'^device/', include('Device.urls')),
     url(r'^email/', include('Email.urls')),
     url(r'^admin/', admin.site.urls),
 ]
