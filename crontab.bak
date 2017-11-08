@@ -1,0 +1,23 @@
+
+#take shots every hour
+0 * * * * /home/pi/webcam/webcam.sh 2>&1
+
+#send email updates every 12 hours
+#0 0,12 * * * wget 192.168.0.69:8000/email/send_update
+0 * * * * wget 192.168.0.69:8000/email/send_update #every hour
+
+#make sensors readings every 10 minutes
+*/10 * * * * wget 192.168.0.69:8000/device/update_all
+
+#activate the lights everyday at midnight
+0 0 * * * python /home/pi/git/growroom/lights.py
+
+#activate pumps everyday at 18hrs
+0 18 * * * python /home/pi/git/growroom/pump1.py
+0 18 * * * python /home/pi/git/growroom/pump2.py
+
+
+#always initialize GR after boot
+@reboot /home/pi/git/growroom/init_garden.sh
+@reboot python /home/pi/git/growroom/lights.py
+

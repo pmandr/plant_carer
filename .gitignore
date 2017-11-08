@@ -4,3 +4,4 @@ settings.py
 *.sqlite3
 *.out
 *.log
+./MyGarden/MyGarden/settings.py
