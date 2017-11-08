@@ -44,12 +44,16 @@ class Device(models.Model):
 	def __str__(self):
 		return self.name
 
+	#Tested in Nov 9 2017 - OK
 	def fullStr(self):
-		str = '[name: '+self.name+'] ' 
-		str += ('[type: '+self.type+'] ' if self.type!=None else '')
-		str += ('[subtype: '+self.subtype+'] ' if self.subtype!=None else '') 
-		str += ('[gpio_pin: '+str(self.gpio_pin)+'] ' if self.gpio_pin!=None else '')
-		return str
+		# str = str(self.gpio_pin)
+		ret = '[name: '+self.name+'] ' 
+		ret += ('[type: '+self.type+'] ' if self.type!=None else '')
+		ret += ('[subtype: '+self.subtype+'] ' if self.subtype!=None else '') 
+		mygpiopin = str(self.gpio_pin)
+		ret += ('[gpio_pin: '+str(self.gpio_pin)+'] \n' if self.gpio_pin>0 else '\n')
+		return ret
+
 
 	def update(self):
 		GPIO.setmode(GPIO.BCM)
@@ -69,7 +73,7 @@ class Device(models.Model):
 				self.logEvent('after activation attempt - 1st time')
 	
 				self.activation_status = 'ACTIVE'
-				self.last_activation = now				
+				self.last_activation = 	now				
 
 			elif last_activation_endtime < now or next_activation_starttime < now:
 				#ACTIVATE
@@ -108,20 +112,22 @@ class Device(models.Model):
 			else: status = 'UNKNOWN:'+str(input)
 			self.logEvent('Input='+status)
 			
-	def logEvent(self, msg='', log_db = True, log_file = True):
-		#raw log
-		if log_file == True :
+	def logEvent(self, msg='', db_log = False, file_log = True):
+		#raw file log : Tested in Nov 9 2017 : WORKING FINE (and writing in /home/pi/git/growroom/MyGarden/logs/general.log)
+		if file_log == True :
 			try:
 				f=open(LOG_FILE, 'a')
-				f.write('['+datetime.now()+'] ['+self.__str__()+'] ['+msg+']\n')
+				f.write('['+str(datetime.now())+'] ['+self.__str__()+'] ['+msg+']\n')
 				f.close()
+				
 			except:
-				self.logEvent("Unexpected error:"+str(sys.exc_info()[0]), True, False)
+				return False
+				# self.logEvent("Unexpected error:"+str(sys.exc_info()[0]), True, False)
 		
 		#DB log
-		if log_db == True:
-			mylog = DeviceLog(device_id=self.id, log_dt=timezone.now(), message=msg)		
-			mylog.save()
+		# if db_log == True:
+		# 	mylog = DeviceLog(device_id=self.id, log_dt=timezone.now(), message=msg)		
+		# 	mylog.save()
 
 	def getLogs(self):
 		my_logs = DeviceLog.objects.filter(device_id = self.id)
