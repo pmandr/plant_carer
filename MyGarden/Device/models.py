@@ -112,7 +112,7 @@ class Device(models.Model):
 			else: status = 'UNKNOWN:'+str(input)
 			self.logEvent('Input='+status)
 			
-	def logEvent(self, msg='', db_log = False, file_log = True):
+	def logEvent(self, msg='', db_log = True, file_log = True):
 		#raw file log : Tested in Nov 9 2017 : WORKING FINE (and writing in /home/pi/git/growroom/MyGarden/logs/general.log)
 		if file_log == True :
 			try:
@@ -125,13 +125,13 @@ class Device(models.Model):
 				# self.logEvent("Unexpected error:"+str(sys.exc_info()[0]), True, False)
 		
 		#DB log
-		# if db_log == True:
-		# 	mylog = DeviceLog(device_id=self.id, log_dt=timezone.now(), message=msg)		
-		# 	mylog.save()
+		if db_log == True:
+			mylog = DeviceLog(device_id=self.id, log_dt=timezone.now(), message=msg)		
+			mylog.save()
 
-	def getLogs(self):
-		my_logs = DeviceLog.objects.filter(device_id = self.id)
-		return my_logs
+	def getLogs(self, limit=20):
+		my_logs = DeviceLog.objects.filter(device_id = self.id).order_by('-log_dt')
+		return my_logs[0:limit]
 
 	def scheduleEvent(self, event_dt, activation=None):
 		myevent = DeviceEvent(device_id=self.id, event_dt=event_dt, activation=activation)
