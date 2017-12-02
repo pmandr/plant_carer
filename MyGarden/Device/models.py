@@ -9,7 +9,7 @@ from django.utils import timezone
 from MyGarden.settings import LOG_FILE
 from datetime import datetime
 
-
+#Tested in 2/dez/2017 - Ok
 def populateDefaultDevices():
 	for obj in Device.objects.all(): obj.delete()
 	#Device.objects.all().delete()
@@ -58,6 +58,7 @@ class Device(models.Model):
 	def update(self):
 		GPIO.setmode(GPIO.BCM)
 
+		#Not fully tested yet
 		if self.type=='ACTUATOR':
 			GPIO.setup(self.gpio_pin, GPIO.OUT)
 
@@ -103,6 +104,8 @@ class Device(models.Model):
 				self.activation_status = 'INACTIVE'
 			
 			self.save()						
+
+		#Tested and working on Dec 2nd 2017
 		elif self.type == 'SENSOR':
 			GPIO.setup(self.gpio_pin, GPIO.IN)
 #			self.logEvent('Before reading')
@@ -111,7 +114,8 @@ class Device(models.Model):
 			elif input==0: status = 'WET'
 			else: status = 'UNKNOWN:'+str(input)
 			self.logEvent('Input='+status)
-			
+	
+	#tested and working in 2/dec/2017 - Ok		
 	def logEvent(self, msg='', db_log = True, file_log = True):
 		#raw file log : Tested in Nov 9 2017 : WORKING FINE (and writing in /home/pi/git/growroom/MyGarden/logs/general.log)
 		if file_log == True :
@@ -129,19 +133,22 @@ class Device(models.Model):
 			mylog = DeviceLog(device_id=self.id, log_dt=timezone.now(), message=msg)		
 			mylog.save()
 
+	#tested and working in 2/dec/2017 - Ok	
 	def getLogs(self, limit=20):
 		my_logs = DeviceLog.objects.filter(device_id = self.id).order_by('-log_dt')
 		return my_logs[0:limit]
 
+	#not tested yet
 	def scheduleEvent(self, event_dt, activation=None):
 		myevent = DeviceEvent(device_id=self.id, event_dt=event_dt, activation=activation)
-		myevent.save()	
+		myevent.save()
 
+	#not tested yet
 	def getScheduledEvents(self):
 		myevents = DeviceEvent.objects.filter(device_id=self.id)
 		return myevents;
 
-
+#Tested and workind on Dec 2nd 2017
 class DeviceLog(models.Model):
 	device = models.ForeignKey(Device, on_delete = models.CASCADE)
 	log_dt = models.DateTimeField()
@@ -155,6 +162,7 @@ class DeviceLog(models.Model):
 	class Meta:
 		ordering = ('log_dt',)
 
+# Not fully tested yet
 class DeviceEvent(models.Model):
 	device = models.ForeignKey(Device, on_delete = models.CASCADE)
 	event_dt = models.DateTimeField()
