@@ -8,10 +8,20 @@ from Device.models import *
 from datetime import datetime
 
 def index(request):
+	# print('lalal1')
+	# return HttpResponse('yo mann')
+	
     mystr = ''
     for cur_device in Device.objects.all():
-    	cur_device.logEvent('Hello World'+str(datetime.now()))
-    return HttpResponse('str'+str(datetime.now()))
+    	cur_device.logEvent('breakpoint1 '+str(datetime.now()))
+    	print('breakpoint1 '+str(datetime.now()))
+    
+    for cur_device in Device.objects.all():
+    	for cur_log in cur_device.getLogs():
+    		print('breakpoint2 '+cur_log.__str__())
+    		mystr += 'breakpoint2 ' + cur_log.__str__() + '\n'
+
+    return HttpResponse(mystr)
     # return HttpResponse("Hello, world. You're at the DEVICE index.")
 
 def update_all(request):
